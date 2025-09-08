@@ -40,6 +40,7 @@ const translations = {
     placeholder_code: "Enter the code you received",
     placeholder_new_password: "Enter new password",
     placeholder_email: "e.g. email@domain.com",
+    please_verify_captcha: "please verify that you are not a robot"
   },
   ar: {
     sign_in: "تسجيل الدخول",
@@ -82,6 +83,7 @@ const translations = {
     placeholder_code: "أدخل رمز التحقق الذي وصلك",
     placeholder_new_password: "أدخل كلمة المرور الجديدة",
     placeholder_email: " name@email.com :مثال ",
+    please_verify_captcha: "يرجى التحقق من أنك لست روبوت"
   },
 };
 

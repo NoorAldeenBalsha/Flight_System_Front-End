@@ -4,6 +4,7 @@ import { useLanguage } from "../context/LanguageContext";
 import Toast from "./toastAnimated";
 import LockIcon from "@material-ui/icons/Lock";
 import MailOutlineIcon from "@material-ui/icons/MailOutline";
+import ReCAPTCHA from "react-google-recaptcha";
 import "../styles.css";
 // Forget Component
 const Forget = () => {
@@ -12,9 +13,15 @@ const Forget = () => {
   const [mail, setMail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "success" });
+  const [captchaToken, setCaptchaToken] = useState("");
   //=======================================================================================================
   //Update email field state
   const handleChange = (e) => setMail(e.target.value);
+  //=======================================================================================================
+  const handleCaptchaChange = (token) => {
+    console.log("CAPTCHA Token:", token); // ✅ لازم تشوفه بالكونسول
+    setCaptchaToken(token);
+  };
   //=======================================================================================================
   //Validate input, call API and show toast messages
   const handleSubmit = async (e) => {
@@ -34,9 +41,13 @@ const Forget = () => {
         },
       };
 
+      if (!captchaToken) {
+      setToast({ show: true, message: t("please_verify_captcha"), type: "error" });
+      return;
+      }
       const res = await axios.post(
         "http://localhost:5000/api/user/forgot-password",
-        { email: mail },
+        { email: mail ,recaptchaToken:captchaToken},
         config
       );
 
@@ -112,7 +123,10 @@ const Forget = () => {
               onChange={handleChange}
             />
           </div>
-
+            <ReCAPTCHA
+                sitekey="6Lf4fMIrAAAAAODY0eqDV4PIp_nCcVh8lamiNGU4"
+                onChange={(token) => setCaptchaToken(token)}
+              />
           <button
             className="btn btn-primary"
             type="submit"

@@ -7,6 +7,7 @@ import { useLanguage } from "../context/LanguageContext";
 import "../auth.css";
 import Toast from "./toastAnimated";
 import axios from "axios";
+import ReCAPTCHA from "react-google-recaptcha";
 // Auth Component: Handles login and registration
 const Auth = () => {
   // State: Form data, loading, toast, input type, language
@@ -19,6 +20,7 @@ const Auth = () => {
   const [flag, setFlag] = useState(0); // 0 = login, 1 = signup
   const [signUpData, setSignUpData] = useState({fullName: "",email: "",password: "",gender: "",phone: "",passportNumber: "",});
   const [signInData, setSignInData] = useState({ email: "", password: "" });
+  const [captchaToken, setCaptchaToken] = useState(null);
   const [inputType, setInputType] = useState("password");
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "success" });
@@ -49,6 +51,7 @@ const Auth = () => {
   // Handle user registration
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
+    
     const { fullName, email, password, gender, phone, passportNumber } = signUpData;
     // تحقق أولي في الفارونت
     if (!fullName || !email || !password || !gender || !phone || !passportNumber) {
@@ -70,19 +73,23 @@ try {
       }
     };
 
+    if (!captchaToken) {
+      setToast({ show: true, message: t("please_verify_captcha"), type: "error" });
+      return;
+    }
     const res = await axios.post(
       "http://localhost:5000/api/user/auth/register",
-      signUpData, 
+      { ...signUpData,recaptchaToken:captchaToken}, 
       config
     );
     // فقط إذا الباك رد بدون خطأ
-    setToast({show: true,message: res.message,type: 'success'}); // الرسالة من الباك
+    setToast({show: true,message: res.data.message,type: 'success'}); // الرسالة من الباك
 
 
     // بعد ثواني قصيرة، انتقل لصفحة النجاح
     setTimeout(() => {
       window.location.href = "http://localhost:3000/registration-success"; // ضع هنا رابط الصفحة التي تريدها
-    }, 1000);
+    }, 3000);
 
   } catch (err) {
     // التعامل مع الأخطاء من الباك
@@ -109,7 +116,7 @@ try {
     setToast({ show: true, message: t("error_fill_all"), type: "error" });
     return;
   }
-
+  
   setIsLoading(true);
 
   try {
@@ -119,10 +126,13 @@ try {
         "lang": lang, // إرسال لغة الموقع للباك
       },
     };
-
+    if (!captchaToken) {
+      setToast({ show: true, message: t("please_verify_captcha"), type: "error" });
+      return;
+    }
     const res = await axios.post(
       "http://localhost:5000/api/user/auth/login",
-      signInData,
+      { ...signInData,recaptchaToken:captchaToken},
       config
     );
 
@@ -205,10 +215,15 @@ try {
                   onChange={handleSignInChange}
                 />
               </div>
+              <ReCAPTCHA
+                sitekey="6Lf4fMIrAAAAAODY0eqDV4PIp_nCcVh8lamiNGU4"
+                onChange={(token) => setCaptchaToken(token)}
+              />
               <input type="submit" value={t("login")} className="btn solid" />
-              <Link to="/forget">{t("forgot_password")}</Link>
+              <Link to="/forget">{t("forgot_password_title")}</Link>
+              
             </form>
-
+          
             {/* Sign Up */}
             <form className="sign-up-form" onSubmit={handleSignUpSubmit}>
               <h2 className="title">{t("sign_up")}</h2>
@@ -270,6 +285,10 @@ try {
                   onChange={handleSignUpChange}
                 />
               </div>
+              <ReCAPTCHA
+                sitekey="6Lf4fMIrAAAAAODY0eqDV4PIp_nCcVh8lamiNGU4"
+                onChange={(token) => setCaptchaToken(token)}
+              />
               <input type="submit" className="btn" value={t("sign_up")} />
             </form>
           </div>
