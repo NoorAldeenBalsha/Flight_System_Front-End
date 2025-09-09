@@ -136,6 +136,10 @@ try {
       config
     );
 
+      // حفظ التوكنات
+    localStorage.setItem("accessToken", res.data.accessToken);
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+    
     // تسجيل الدخول ناجح
     setToast({
       show: true,

@@ -11,12 +11,14 @@ import "animate.css";
 import {Toast,FormControl,InputGroup,Container,Row,DropdownButton,Dropdown,Item,Button} from "react-bootstrap";
 import CartContext from "../context/cart/cartContext";
 import AuthContext from "../context/auth/authContext";
+import API from "../api/axios";
 
 const Menu = (props) => {
   const { Loader, loading, setLoading } = useContext(LoadingContext);
 
   // const [loading, setLoading] = useState(1);
-
+  console.log("Access Token:", localStorage.getItem("accessToken"));
+  console.log("Refresh Token:", localStorage.getItem("refreshToken"));
   const {items,search,clearFilter,filtered, sortByName,sortByPrice,loadItems,loading1} = useContext(ProductContext);
   const [filter, setFilter] = useState([]);
   const [text1, setText] = useState("");
@@ -57,21 +59,24 @@ const Menu = (props) => {
     );
   };
 
-  useEffect(() => {
+useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const res = await API.get("/user/profile", {
+          headers: { Authorization: `Bearer ${accessToken} `},
+        });
+        console.log(accessToken);
+        console.log(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
     if (isAuthenticated) {
-      setLoading(loadItems());
+      fetchProfile();
     }
   }, [isAuthenticated]);
-  useEffect(() => {
-    // if (!isAuthenticated && localStorage.getItem("token") === null) {
-    //   props.history.push("auth");
-    // }
-    if (text1 === "") {
-      setFilter(items);
-    } else {
-      setFilter(filtered);
-    }
-  }, [filtered, items, isAuthenticated]);
 
   const handleClick = (e) => {
     setText("");

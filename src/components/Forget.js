@@ -18,11 +18,6 @@ const Forget = () => {
   //Update email field state
   const handleChange = (e) => setMail(e.target.value);
   //=======================================================================================================
-  const handleCaptchaChange = (token) => {
-    console.log("CAPTCHA Token:", token); // ✅ لازم تشوفه بالكونسول
-    setCaptchaToken(token);
-  };
-  //=======================================================================================================
   //Validate input, call API and show toast messages
   const handleSubmit = async (e) => {
     e.preventDefault();
