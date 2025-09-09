@@ -627,3 +627,19 @@ hr {
   100% { transform: rotate(360deg); }
 }
 /*===================================================*/
+
+/* Left to Rigt & Right to Left*/
+/* الاتجاه الافتراضي للإنكليزي */
+.ltr {
+  direction: ltr;
+  text-align: left;
+  font-family: "Poppins", sans-serif;
+}
+
+/* الاتجاه للعربي */
+.rtl {
+  direction: rtl;
+  text-align: right;
+  font-family: "Cairo", sans-serif;
+}
+/*===================================================*/

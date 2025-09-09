@@ -116,8 +116,6 @@ try {
     setToast({ show: true, message: t("error_fill_all"), type: "error" });
     return;
   }
-  
-  setIsLoading(true);
 
   try {
     const config = {
@@ -141,16 +139,12 @@ try {
     localStorage.setItem("refreshToken", res.data.refreshToken);
     
     // تسجيل الدخول ناجح
-    setToast({
-      show: true,
-      message: res.data.message || t("success_login"),
-      type: "success",
-    });
+
 
     // الانتقال للصفحة الرئيسية بعد ثانية
     setTimeout(() => {
       window.location.href = "/";
-    }, 1000);
+    });
 
   } catch (err) {
     // التعامل مع الأخطاء من الباك
@@ -177,7 +171,6 @@ try {
       });
     }
   } finally {
-    setIsLoading(false);
   }
   };
   //=======================================================================================================

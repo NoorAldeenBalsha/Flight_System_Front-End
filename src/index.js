@@ -9,8 +9,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalToastProvider from "./components/GlobalToast";
 import { LanguageProvider } from "./context/LanguageContext";
 import process from "process";
+import { BrowserRouter as Router, Switch, Route ,useLocation} from "react-router-dom";
 window.process=process;
 ReactDOM.render(
+  
   <LanguageProvider>
     <React.StrictMode>
       <GlobalToastProvider>
@@ -19,7 +21,9 @@ ReactDOM.render(
             <LoadingState>
               <ProductState>
                 <CartState>
-                  <App />
+                  <Router>
+                    <App />
+                  </Router>
                 </CartState>
               </ProductState>
             </LoadingState>
