@@ -9,7 +9,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalToastProvider from "./components/GlobalToast";
 import { LanguageProvider } from "./context/LanguageContext";
 import process from "process";
-import { BrowserRouter as Router, Switch, Route ,useLocation} from "react-router-dom";
+import { BrowserRouter as Router} from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 window.process=process;
 ReactDOM.render(
   
@@ -22,7 +23,9 @@ ReactDOM.render(
               <ProductState>
                 <CartState>
                   <Router>
+                    <GoogleOAuthProvider clientId="136188509800-5cs4tpi1pol2jfgna16g0rj7cb759abq.apps.googleusercontent.com">
                     <App />
+                    </GoogleOAuthProvider>
                   </Router>
                 </CartState>
               </ProductState>

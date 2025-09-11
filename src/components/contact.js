@@ -106,7 +106,7 @@ const Contact = () => {
                 component="img"
                 alt=" Mihir Gupta"
                 height="300"
-                image={require("../images/Mihir.jpeg")}
+               // image={require("../images/Mihir.jpeg")}
                 title=" Mihir Gupta"
               />
               <CardContent className="contact_card">

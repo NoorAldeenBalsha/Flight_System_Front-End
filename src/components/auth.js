@@ -8,11 +8,13 @@ import "../auth.css";
 import Toast from "./toastAnimated";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
+import { GoogleLogin } from "@react-oauth/google";
+import jwtDecode from "jwt-decode";
 // Auth Component: Handles login and registration
 const Auth = () => {
   // State: Form data, loading, toast, input type, language
   const history = useHistory();
-  const { register, login, isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const { loadCart } = useContext(CartContext);
   const { Loader } = useContext(LoadingContext);
   const { t, lang } = useLanguage();
@@ -24,6 +26,7 @@ const Auth = () => {
   const [inputType, setInputType] = useState("password");
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "success" });
+  
   //=======================================================================================================
   // Redirect if already authenticated
   useEffect(() => {
@@ -53,7 +56,7 @@ const Auth = () => {
     e.preventDefault();
     
     const { fullName, email, password, gender, phone, passportNumber } = signUpData;
-    // تحقق أولي في الفارونت
+
     if (!fullName || !email || !password || !gender || !phone || !passportNumber) {
       setToast({
         show: true,
@@ -69,10 +72,9 @@ try {
     const config = {
       headers: {
         "Content-Type": "application/json",
-        "lang": lang // اللغة ترسل في الهيدر
+        "lang": lang 
       }
     };
-
     if (!captchaToken) {
       setToast({ show: true, message: t("please_verify_captcha"), type: "error" });
       return;
@@ -82,21 +84,21 @@ try {
       { ...signUpData,recaptchaToken:captchaToken}, 
       config
     );
-    // فقط إذا الباك رد بدون خطأ
-    setToast({show: true,message: res.data.message,type: 'success'}); // الرسالة من الباك
+
+    setToast({show: true,message: res.data.message,type: 'success'}); 
 
 
-    // بعد ثواني قصيرة، انتقل لصفحة النجاح
+
     setTimeout(() => {
-      window.location.href = "http://localhost:3000/registration-success"; // ضع هنا رابط الصفحة التي تريدها
+      window.location.href = "http://localhost:3000/registration-success"; 
     }, 3000);
 
   } catch (err) {
-    // التعامل مع الأخطاء من الباك
+
     const data = err.response?.data;
 
     if (data?.errors?.length > 0) {
-      setToast({show: true,message: data.errors[0].message,type: 'error'}); // أول خطأ فقط
+      setToast({show: true,message: data.errors[0].message,type: 'error'}); 
     } else 
       if (data?.message) {
       setToast({show: true,message: data.message,type: 'error'});
@@ -121,37 +123,28 @@ try {
     const config = {
       headers: {
         "Content-Type": "application/json",
-        "lang": lang, // إرسال لغة الموقع للباك
+        "lang": lang,
       },
     };
-    if (!captchaToken) {
-      setToast({ show: true, message: t("please_verify_captcha"), type: "error" });
-      return;
-    }
     const res = await axios.post(
       "http://localhost:5000/api/user/auth/login",
       { ...signInData,recaptchaToken:captchaToken},
       config
     );
 
-      // حفظ التوكنات
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
     
-    // تسجيل الدخول ناجح
-
-
-    // الانتقال للصفحة الرئيسية بعد ثانية
     setTimeout(() => {
       window.location.href = "/";
     });
 
   } catch (err) {
-    // التعامل مع الأخطاء من الباك
+
     const data = err.response?.data;
 
     if (data?.errors?.length > 0) {
-      // عرض أول خطأ من الباك
+
       setToast({
         show: true,
         message: data.errors[0].message,
@@ -172,6 +165,39 @@ try {
     }
   } finally {
   }
+  };
+  //=======================================================================================================
+  // Google Sign In 
+  useEffect(() => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: "136188509800-5cs4tpi1pol2jfgna16g0rj7cb759abq.apps.googleusercontent.com",
+        callback: handleGoogleLoginSuccess,
+      });
+      window.google.accounts.id.renderButton(
+        document.getElementById("google-signin-button"),
+        { theme: "outline", size: "normal", width: "100%" }
+      );
+    }
+  }, []);
+
+  const handleGoogleLoginSuccess = async (response) => {
+    try {
+      const credential = response.credential;
+      const user = jwtDecode(credential);
+      setIsLoading(true);
+      const res = await axios.post("http://localhost:5000/api/user/google-login", { credential });
+
+      localStorage.setItem("accessToken", res.data.accessToken);
+      setToast({ show: true, message: t("login_success"), type: "success" });
+      setTimeout(() => {
+      window.location.href = "/";
+    });
+    } catch (err) {
+      setToast({ show: true, message: t("error_server"), type: "error" });
+    } finally {
+      setIsLoading(false);
+    }
   };
   //=======================================================================================================
   return (
@@ -212,15 +238,13 @@ try {
                   onChange={handleSignInChange}
                 />
               </div>
-              <ReCAPTCHA
-                sitekey="6Lf4fMIrAAAAAODY0eqDV4PIp_nCcVh8lamiNGU4"
-                onChange={(token) => setCaptchaToken(token)}
-              />
               <input type="submit" value={t("login")} className="btn solid" />
+               {/* Google Login Button */}  
+              <div id="google-signin-button" style={{ marginTop: "15px" }}></div>
               <Link to="/forget">{t("forgot_password_title")}</Link>
-              
+
             </form>
-          
+
             {/* Sign Up */}
             <form className="sign-up-form" onSubmit={handleSignUpSubmit}>
               <h2 className="title">{t("sign_up")}</h2>
@@ -282,7 +306,7 @@ try {
                   onChange={handleSignUpChange}
                 />
               </div>
-              <ReCAPTCHA
+               <ReCAPTCHA
                 sitekey="6Lf4fMIrAAAAAODY0eqDV4PIp_nCcVh8lamiNGU4"
                 onChange={(token) => setCaptchaToken(token)}
               />
